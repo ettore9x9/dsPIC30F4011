@@ -40,15 +40,83 @@
 
 #include <xc.h>
 
-int main(void) {
+void exercise1(void){
+
+    TRISBbits.TRISB0 = 0; // set the pin as output 
+    
+    while(1){  
+        LATBbits.LATB0 = 1; // set the pin high 
+    }
+}
+
+void exercise2(void){
     int pinValue;
     
-    while(1){
-        TRISEbits.TRISE8 = 1; // set the pin as input 
+    TRISEbits.TRISE8 = 1; // set the pin as input 
+    TRISBbits.TRISB0 = 0; // set the pin as output 
+    
+    while(1){  
         pinValue = !PORTEbits.RE8; // read the value and modify it
-
-        TRISBbits.TRISB0 = 0; // set the pin as output 
         LATBbits.LATB0 = pinValue; // set the pin high 
-        return 0;
     }
+}
+
+void exercise3(void){
+    int prevButtonValue = 1;  // 1 button up, 0 button pressed
+    int buttonValue;
+    
+    TRISEbits.TRISE8 = 1; // set the button S5 pin as input 
+    TRISBbits.TRISB0 = 0; // set the led D3 pin as output 
+    
+    while(1){
+        
+        // storing the variable because it may change during execution
+        buttonValue = PORTEbits.RE8;
+        
+        if (buttonValue != prevButtonValue && buttonValue == 0){
+            
+            
+            LATBbits.LATB0 = !LATBbits.LATB0; // toggle led
+        }
+        
+        prevButtonValue = buttonValue;
+    }
+}
+
+#define COUNTER_MAX_VALUE 1000
+void exercise4(void){
+    int counter = COUNTER_MAX_VALUE;
+    
+    TRISEbits.TRISE8 = 1; // set the button S5 pin as input 
+    TRISBbits.TRISB0 = 0; // set the led D3 pin as output 
+    
+    while(1){
+        
+        // If the button is pressed
+        if (PORTEbits.RE8 == 0) {
+            
+            // Avoid underflow
+            if (counter > -1){
+                counter--;
+            }
+        } else {
+            counter = COUNTER_MAX_VALUE;
+        }
+        
+        // The button must be pressed for COUNT_MAX_VALUE cycles to toggle the led
+        if (counter == 0){
+            LATBbits.LATB0 = !LATBbits.LATB0; // toggle led
+        }
+        
+    }
+}
+
+int main(void) {
+    
+    // exercise1();  // Light the led
+    // exercise2();  // Press the button to light the led
+    // exercise3();  // Press the button to toggle the led
+    exercise4();  // Press the button to toggle the led without rimbalzo meccanico
+    
+    return 0;
 }

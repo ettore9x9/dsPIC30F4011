@@ -85,9 +85,9 @@ Default Scalar Model: Small
 section                    address   length (PC units)   length (bytes) (dec)
 -------                    -------   -----------------   --------------------
 .text                        0x100                0xce           0x135  (309)
-.text                        0x1ce                0x30            0x48  (72)
+.text                        0x1ce                0xcc           0x132  (306)
 
-                 Total "program" memory used (bytes):          0x17d  (381) <1%
+                 Total "program" memory used (bytes):          0x267  (615) 1%
 
 
 "data" Memory  [Origin = 0x800, Length = 0x800]
@@ -114,10 +114,14 @@ External Symbols in Program Memory (by address):
 
                   0x000100                  __resetPRI
                   0x00013c                  __psv_init
-                  0x000152                  __data_init_standard
                   0x000152                  __data_init
+                  0x000152                  __data_init_standard
                   0x0001c8                  __DefaultInterrupt
-                  0x0001ce                  _main
+                  0x0001ce                  _exercise1
+                  0x0001d6                  _exercise2
+                  0x000202                  _exercise3
+                  0x000248                  _exercise4
+                  0x000290                  _main
                   0xf8000a                  __FGS.sec
 
 External Symbols in Program Memory (by name):
@@ -128,7 +132,11 @@ External Symbols in Program Memory (by name):
                   0x000152                  __data_init_standard
                   0x00013c                  __psv_init
                   0x000100                  __resetPRI
-                  0x0001ce                  _main
+                  0x0001ce                  _exercise1
+                  0x0001d6                  _exercise2
+                  0x000202                  _exercise3
+                  0x000248                  _exercise4
+                  0x000290                  _main
 
 Memory Configuration
 
@@ -240,7 +248,7 @@ __RESERVED2
 
 __FGS             0xf8000a          0x2
  *(__FGS.sec*)
- __FGS.sec        0xf8000a          0x2 /CW/_FGSP`м
+ __FGS.sec        0xf8000a          0x2 /CW/_FGS@зе
                   0xf8000a                  __FGS.sec
 
 __FICD
@@ -255,22 +263,22 @@ userdata
 .comment
  *(.comment)
 
-.debug_info       0x000000        0x4fa
+.debug_info       0x000000        0x5aa
  *(.debug_info)
- .debug_info      0x000000        0x4fa build/default/production/main.o
+ .debug_info      0x000000        0x5aa build/default/production/main.o
  *(.gnu.linkonce.wi.*)
 
-.debug_abbrev     0x000000         0x9d
+.debug_abbrev     0x000000         0xc7
  *(.debug_abbrev)
- .debug_abbrev    0x000000         0x9d build/default/production/main.o
+ .debug_abbrev    0x000000         0xc7 build/default/production/main.o
 
-.debug_line       0x000000        0x104
+.debug_line       0x000000        0x126
  *(.debug_line)
- .debug_line      0x000000        0x104 build/default/production/main.o
+ .debug_line      0x000000        0x126 build/default/production/main.o
 
-.debug_frame      0x000000         0x2e
+.debug_frame      0x000000         0x96
  *(.debug_frame)
- .debug_frame     0x000000         0x2e build/default/production/main.o
+ .debug_frame     0x000000         0x96 build/default/production/main.o
 
 .debug_str        0x000000         0x27
  *(.debug_str)
@@ -283,10 +291,10 @@ userdata
  *(.debug_macinfo)
 
 .debug_pubnames
-                  0x000000         0x1b
+                  0x000000         0x53
  *(.debug_pubnames)
  .debug_pubnames
-                  0x000000         0x1b build/default/production/main.o
+                  0x000000         0x53 build/default/production/main.o
 
 .debug_ranges
  *(.debug_ranges)
@@ -1003,7 +1011,7 @@ LOAD c:/program files/microchip/xc16/v2.00/bin/bin/../../lib\libm-elf.a
 LOAD c:/program files/microchip/xc16/v2.00/bin/bin/../../lib\libc99-elf.a
 END GROUP
 OUTPUT(dist/default/production/MyTestProject.X.production.elf elf32-pic30)
-LOAD /CW/_FGSP`м
+LOAD /CW/_FGS@зе
 LOAD default_isr
 
 .debug_pubtypes
@@ -1034,6 +1042,10 @@ __c30_signature
  .config_FCKSMEN
                   0xf80000          0x2 build/default/production/main.o
 
-.text             0x0001ce         0x30
- .text            0x0001ce         0x30 build/default/production/main.o
-                  0x0001ce                  _main
+.text             0x0001ce         0xcc
+ .text            0x0001ce         0xcc build/default/production/main.o
+                  0x0001ce                  _exercise1
+                  0x0001d6                  _exercise2
+                  0x000202                  _exercise3
+                  0x000248                  _exercise4
+                  0x000290                  _main
