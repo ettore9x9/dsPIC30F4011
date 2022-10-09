@@ -1,0 +1,57 @@
+m8f = 7.3728 MHz 
+Fcy = Fosc / 4 = 7372800 / 4 = 1843200 (number of clocks in one second)
+
+to measure 1ms:
+1843200 * 0,001 = 1843,2 clock cycles
+
+65535 / 1843,2 = 35,5 ms
+The max number of ms i can measure with prescaler 1 is 35 ms.
+In fact, if 36 ms: counter = 1843200 * 0,036 = 66355
+
+(65535*8) / 1843,2 = 284,4 ms
+The max number of ms i can measure with prescale 8 is 284 ms
+In fact, if 285 ms: counter = 1843200 * 0,285 = 525312 > 65535*8 = 524280
+
+(65535*64) / 1843,2 = 2275,5 ms
+The max number of ms i can measure with prescale 64 is 2275 ms
+In fact, if 2276 ms: counter = 1843200 * 2,276 =  4.195.123,2 > 4.194.240
+
+(65535*256) / 1843,2 = 9422,07 ms
+The max number of ms i can measure with prescale 256 is 9422 ms
+In fact, if 9423 ms: counter = 1843200 * 9,423 = 17.368.473,6 > 17.366.775
+
+int pr_value = (FCY * ms/1000) >> (1 << 3*prescaler);
+
+#define FCY_1000 1843.2
+
+int main()
+{
+    int ms = 5000;
+    
+    short prescaler = 0;
+    if(ms > 35 && ms <= 284)
+        prescaler = 1;
+    else if(ms <= 2275)
+        prescaler = 2;
+    else
+        prescaler = 3;
+    
+    int pr_value = (int)(FCY_1000 * ((float)ms / (1 << 3*prescaler)));
+    double pr_value_1 = (FCY_1000 * ms / (1 << 3*prescaler));
+    printf("%i %f", pr_value, pr_value_1);
+    return 0;
+}
+
+0 -> 1
+1 -> 8
+2 -> 64
+3 -> 256
+
+1 -> 2
+2 -> 4
+3 -> 8
+4 -> 16
+5 -> 32
+6 -> 64
+7 -> 128
+8 -> 256
