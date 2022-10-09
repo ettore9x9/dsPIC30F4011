@@ -67,17 +67,19 @@ void tmr_setup_period(int timer, int ms){
     
     // depending on the number of ms that the timer must count, set the correct
     // prescaler and the relative divisor
+
+    // default value (prescaler value 256)
     short prescaler = 3;
     int divisor = 256;
     
     if (ms <= 35){
-        prescaler = 0;
+        prescaler = 0; // prescaler value 1
         divisor = 1;
     } else if (ms <= 284 ){
-        prescaler = 1;
+        prescaler = 1; // prescaler value 8
         divisor = 8;
     } else if (ms <= 2275) {
-        prescaler = 2;
+        prescaler = 2; // prescaler value 64
         divisor = 64;
     }
     
