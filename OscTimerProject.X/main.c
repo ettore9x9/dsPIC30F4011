@@ -46,7 +46,10 @@
 #define TIMER4 4 
 #define TIMER5 5
 
-void exercise1() {
+#define TIMER_VALUE 5
+
+void exercise1()
+{
     // toggle the led every 500ms
     
     TRISBbits.TRISB0 = 0; // set the led pin as output 
@@ -58,7 +61,8 @@ void exercise1() {
     }
 }
 
-void exercise2() {
+void exercise2()
+{
     // turn on and off the led in a given pattern
     
     TRISBbits.TRISB0 = 0; // set the led pin as output
@@ -76,7 +80,8 @@ void exercise2() {
     while(1); // do nothing, avoiding restarting
 }
 
-void exercise3() {
+void exercise3() 
+{
     // observe behavior of different delays
     
     TRISBbits.TRISB0 = 0; // set the led pin as output 
@@ -89,21 +94,48 @@ void exercise3() {
     }
 }
 
-void exercise4() {
+void exercise4()
+{
     // advanced exercise
     
     TRISBbits.TRISB0 = 0; // set the led pin as output 
     TRISEbits.TRISE8 = 1; // set the button pin as input 
+    
+    tmr_setup_period(TIMER1, 1000); // setup the timer for the period
+    tmr_setup_period(TIMER2, 100); // setup the timer for the LED toggle
+    
+    int pulses = 0; // counter for the pulses
+    
+    LATBbits.LATB0 = 0; // LED off
 
-    while (1) {
+    while (1)
+    {
+        // If the button is pressed
+        if(PORTEbits.RE8 == 0)
+        {
+            tmr_wait_ms(TIMER3, TIMER_VALUE); // the timer to count for the button press
+            if(PORTEbits.RE8 == 0)
+                pulses = (pulses + 1) % 3 + 1;
+        }
         
+        // toggle the LED
+        for(int i = 0; i < pulses; i++)
+        {
+            LATBbits.LATB0 = 1; // LED on
+            tmr_wait_ms(TIMER2, 100);
+            LATBbits.LATB0 = 0; // LED off
+            tmr_wait_ms(TIMER2, 100);
+        }
+        
+        tmr_wait_period(TIMER1);
     }
 }
 
-int main() {
+int main()
+{
     
     // Wait 5 seconds before executing the exercise.
-    tmr_wait_ms(TIMER1, 5000);
+    //tmr_wait_ms(TIMER1, 5000);
     
     //exercise1();
     //exercise2();
