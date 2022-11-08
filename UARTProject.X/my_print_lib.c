@@ -45,7 +45,7 @@ void displayWord(char word) {
     SPI1CONbits.SPRE = 6; // secondary prescaler 
     SPI1STATbits.SPIEN = 1; // enable SPI
     
-    SPI1BUF = 0x80;   // set the cursor to initial pose
+    // SPI1BUF = 0x80;   // set the cursor to initial pose
     while (SPI1STATbits.SPITBF == 1); // wait until not full
     SPI1BUF = word;
     
