@@ -78,50 +78,59 @@ void __attribute__((__interrupt__, __auto_psv__)) _T3Interrupt() {
 }
 
 void exercise1(void) {
-    
     tmr_wait_ms(TIMER1, 1500);
-    
     U2BRG = 11; // (7372800 / 4) / (16 * 9600) ? 1 
     U2MODEbits.UARTEN = 1; // enable UART 
-    
     U2STAbits.UTXEN = 1; // enable U1TX (must be after UARTEN)
-
-    char word = U2RXREG;
-    displayWord(word);
-    
-    while(1);
+    while (U2STAbits.URXDA == 0); // wait until there is a char to read
+    char word = U2RXREG;   // read the input char
+    displayWord(word);   // print the char on the LCD
+    while(1);   // wait for not resetting
 }
 
-void exercise2(void){
-    
+void exercise1b(void) {
+    tmr_wait_ms(TIMER1, 1500);
+    U2BRG = 11; // (7372800 / 4) / (16 * 9600) ? 1 
+    U2MODEbits.UARTEN = 1; // enable UART 
+    U2STAbits.UTXEN = 1; // enable U1TX (must be after UARTEN)
+    while(1){
+        while (U2STAbits.URXDA == 0); // wait until there is a char to read
+        char word = U2RXREG; // read the input char
+        displayWord(word); // print the char on the LCD
+    }
+}
+
+void exercise2(void) {
+    tmr_wait_ms(TIMER1, 1500);
+    U2BRG = 11; // (7372800 / 4) / (16 * 9600) ? 1 
+    U2MODEbits.UARTEN = 1; // enable UART 
+    U2STAbits.UTXEN = 1; // enable U1TX (must be after UARTEN)
+    while(1){
+        while (U2STAbits.URXDA == 0); // wait until there is a char to read
+        char word = U2RXREG; // read the input char
+        U2TXREG = word;
+    }
 }
 
 void exercise3(void) {
     tmr_wait_ms(TIMER1, 1500);
-    TRISEbits.TRISE8 = 1; // set the button S5 pin as input
-    IEC0bits.INT0IE = 1; // enable button S5 interrupt
-    IEC0bits.T3IE = 1; // enable timer 3 interrupt
-
-    tmr_setup_period(TIMER2, 1000);
-    char str[100];
-    while (1) {
-        sprintf(str, "sec = %d ", seconds);
-        displayText(str);
-        seconds++;
-        tmr_wait_period(TIMER2);
+    U2BRG = 11; // (7372800 / 4) / (16 * 9600) ? 1 
+    U2MODEbits.UARTEN = 1; // enable UART 
+    U2STAbits.UTXEN = 1; // enable U1TX (must be after UARTEN)
+    while(1){
+        while (U2STAbits.URXDA == 0); // wait until there is a char to read
+        char word = U2RXREG; // read the input char
+        U2TXREG = word;
+        displayWord(word); // print the char on the LCD
     }
-}
-
-void advanced_exercise(){
-    
 }
 
 int main(void) {
     
-    exercise1();
+    // exercise1();
+    // exercise1b();
     // exercise2();
-    // exercise3();
-    // advanced_exercise()
+    exercise3();
     
     return 0;
 }
