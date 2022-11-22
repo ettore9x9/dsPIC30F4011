@@ -49,24 +49,104 @@
 #include "my_btn_lib.h"
 #include <stdio.h>
 
-int main(void)
-{
-    // Setting the Tad
-    ADCON3bits.ADCS = 8; // Tad = 8 Tcy
+void exercise1() {
+    char buf[10];
+    init_spi();
+    tmr_wait_ms(TIMER1, 1500);
+    
     // sampling mode: manual
     ADCON1bits.ASAM = 0; // start
     ADCON1bits.SSRC = 0; // end
-    // selecting the number of channels
-    ADCON2bits.CHPS = 1;
+    // selecting the channel to convert
+    ADCON2bits.CHPS = 0;
     // chose the positive input of the channels
-    ADCHSbits.CH0SA = 1;
-    ADCHSbits.CH123SA = 1;
-    
-    // set all the bits to high
-    ADPCFG = 1;
-    // set the bit 0 low
-    ADPCFGbits.PCFG0 = 0;
-    
+    ADCHSbits.CH0SA = 0b0010;
+
+    // select the AN2 pin as analogue
+    ADPCFG = 0xfffb;
+
     // turn the ADC on
     ADCON1bits.ADON = 1;
+
+    while (1) 
+    {
+        ADCON1bits.SAMP = 1; // start sampling
+        tmr_wait_ms(TIMER1, 100);
+        ADCON1bits.SAMP = 0; // end sampling, start conversion
+        while (!ADCON1bits.DONE); // wait for the end of the conversion
+        sprintf(buf, "%d", ADCBUF0);
+        lcd_write(0, buf); // read the sampled value
+    }
+}
+
+void exercise2() {
+    char buf[10];
+    init_spi();
+    tmr_wait_ms(TIMER1, 1500);
+    // Setting the Tad
+    ADCON3bits.ADCS = 8; // Tad = 4.5 Tcy
+    // sampling mode: manual sampling, automatic conversion
+    ADCON1bits.ASAM = 0; // start
+    ADCON1bits.SSRC = 7; // end
+    
+    ADCON3bits.SAMC = 16; // auto sampling time
+    // selecting the channel to convert
+    ADCON2bits.CHPS = 0;
+    // chose the positive input of the channels
+    ADCHSbits.CH0SA = 0b0011;
+
+    // select the AN3 pin as analogue
+    ADPCFG = 0xfff7;
+
+    // turn the ADC on
+    ADCON1bits.ADON = 1;
+
+    while (1) {
+        ADCON1bits.SAMP = 1; // start sampling
+        while (!ADCON1bits.DONE); // wait for the end of the conversion
+        sprintf(buf, "%u", ADCBUF0);
+        // charcounter_to_str(ADCBUF0, 0, buf);
+        lcd_write(0, buf); // read the sampled value
+        tmr_wait_ms(TIMER1,100);
+    }
+}
+
+void exercise3() {
+    char buf[10];
+    init_spi();
+    tmr_wait_ms(TIMER1, 1500);
+    // Setting the Tad
+    ADCON3bits.ADCS = 8; // Tad = 4.5 Tcy
+    // sampling mode: manual sampling, automatic conversion
+    ADCON1bits.ASAM = 1; // start
+    ADCON1bits.SSRC = 7; // end
+    
+    ADCON3bits.SAMC = 16; // auto sampling time
+    
+    // selecting the channel to convert
+    ADCON2bits.CHPS = 0;
+    // chose the positive input of the channels
+    ADCHSbits.CH0SA = 0b0011;
+
+    // select the AN3 pin as analogue
+    ADPCFG = 0xfff7;
+
+    // turn the ADC on
+    ADCON1bits.ADON = 1;
+
+    while (1) {
+        ADCON1bits.SAMP = 1; // start sampling
+        while (!ADCON1bits.DONE); // wait for the end of the conversion
+        sprintf(buf, "%u", ADCBUF0);
+        // charcounter_to_str(ADCBUF0, 0, buf);
+        lcd_write(0, buf); // read the sampled value
+        tmr_wait_ms(TIMER1,100);
+    }
+}
+
+int main(void)
+{
+    //exercise1();
+    exercise2();
+    // exercise3();
 }
