@@ -51,6 +51,9 @@
 
 void exercise1() {
     char buf[10];
+    int bits;
+    float percent;
+    
     init_spi();
     tmr_wait_ms(TIMER1, 1500);
     
@@ -74,8 +77,12 @@ void exercise1() {
         tmr_wait_ms(TIMER1, 100);
         ADCON1bits.SAMP = 0; // end sampling, start conversion
         while (!ADCON1bits.DONE); // wait for the end of the conversion
-        sprintf(buf, "%d", ADCBUF0);
+        bits = ADCBUF0;
+        percent = bits/10.23;
+        sprintf(buf, "%db  ", bits);
         lcd_write(0, buf); // read the sampled value
+        sprintf(buf, "%.0f%%  ", percent);
+        lcd_write(16, buf); // read the sampled value
     }
 }
 
@@ -108,9 +115,9 @@ void exercise2() {
         while (!ADCON1bits.DONE); // wait for the end of the conversion
         bits = ADCBUF0;
         temp = bits * 0.48828125 - 50;
-        sprintf(buf, "T=%ub", bits);
+        sprintf(buf, "T=%ub  ", bits);
         lcd_write(0, buf); // read the sampled value
-        sprintf(buf, "T=%f°C", temp);
+        sprintf(buf, "T=%.1fC  ", temp);
         lcd_write(16, buf); // read the sampled value
         tmr_wait_ms(TIMER1,100);
     }
@@ -151,7 +158,7 @@ void exercise3() {
 
 int main(void)
 {
-    //exercise1();
+    // exercise1();
     exercise2();
     // exercise3();
 }
