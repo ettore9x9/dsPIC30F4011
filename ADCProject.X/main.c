@@ -81,6 +81,8 @@ void exercise1() {
 
 void exercise2() {
     char buf[10];
+    unsigned int bits;
+    double temp;
     init_spi();
     tmr_wait_ms(TIMER1, 1500);
     // Setting the Tad
@@ -104,9 +106,12 @@ void exercise2() {
     while (1) {
         ADCON1bits.SAMP = 1; // start sampling
         while (!ADCON1bits.DONE); // wait for the end of the conversion
-        sprintf(buf, "%u", ADCBUF0);
-        // charcounter_to_str(ADCBUF0, 0, buf);
+        bits = ADCBUF0;
+        temp = bits * 0.48828125 - 50;
+        sprintf(buf, "T=%ub", bits);
         lcd_write(0, buf); // read the sampled value
+        sprintf(buf, "T=%f°C", temp);
+        lcd_write(16, buf); // read the sampled value
         tmr_wait_ms(TIMER1,100);
     }
 }
