@@ -50,131 +50,18 @@
 #include <stdio.h>
 
 void exercise1() {
-    char buf[10];
-    int bits;
-    float percent;
-    
-    init_spi();
-    tmr_wait_ms(TIMER1, 1500);
-    
-    // sampling mode: manual
-    ADCON1bits.ASAM = 0; // start
-    ADCON1bits.SSRC = 0; // end
-    // selecting the channel to convert
-    ADCON2bits.CHPS = 0;
-    // chose the positive input of the channels
-    ADCHSbits.CH0SA = 0b0010;
 
-    // select the AN2 pin as analogue
-    ADPCFG = 0xfffb;
-
-    // turn the ADC on
-    ADCON1bits.ADON = 1;
-
-    while (1) 
-    {
-        ADCON1bits.SAMP = 1; // start sampling
-        tmr_wait_ms(TIMER1, 100);
-        ADCON1bits.SAMP = 0; // end sampling, start conversion
-        while (!ADCON1bits.DONE); // wait for the end of the conversion
-        bits = ADCBUF0;
-        percent = bits/10.23;
-        sprintf(buf, "%db  ", bits);
-        lcd_write(0, buf); // read the sampled value
-        sprintf(buf, "%.0f%%  ", percent);
-        lcd_write(16, buf); // read the sampled value
-    }
 }
 
 void exercise2() {
-    char buf[10];
-    unsigned int bits;
-    double temp;
-    init_spi();
-    tmr_wait_ms(TIMER1, 1500);
-    // Setting the Tad
-    ADCON3bits.ADCS = 8; // Tad = 4.5 Tcy
-    // sampling mode: manual sampling, automatic conversion
-    ADCON1bits.ASAM = 0; // start
-    ADCON1bits.SSRC = 7; // end
-    
-    ADCON3bits.SAMC = 16; // auto sampling time
-    // selecting the channel to convert
-    ADCON2bits.CHPS = 0;
-    // chose the positive input of the channels
-    ADCHSbits.CH0SA = 0b0011;
-
-    // select the AN3 pin as analogue
-    ADPCFG = 0xfff7;
-
-    // turn the ADC on
-    ADCON1bits.ADON = 1;
-
-    while (1) {
-        ADCON1bits.SAMP = 1; // start sampling
-        while (!ADCON1bits.DONE); // wait for the end of the conversion
-        bits = ADCBUF0;
-        temp = bits * 0.48828125 - 50;
-        sprintf(buf, "T=%ub  ", bits);
-        lcd_write(0, buf); // read the sampled value
-        sprintf(buf, "T=%.1fC  ", temp);
-        lcd_write(16, buf); // read the sampled value
-        tmr_wait_ms(TIMER1,1000);
-    }
 }
  
 void exercise3() {
-    char buf[10];
-    unsigned int bits;
-    double temp;
-    init_spi();
-    tmr_wait_ms(TIMER1, 1500);
-    // Setting the Tad
-    ADCON3bits.ADCS = 8; // Tad = 4.5 Tcy
-    // sampling mode: automatic sampling, automatic conversion
-    ADCON1bits.ASAM = 1; // start
-    ADCON1bits.SSRC = 7; // end
-    
-    ADCON3bits.SAMC = 16; // auto sampling time
-    
-    // selecting the channel to convert
-    ADCON2bits.CHPS = 0b01;
-    // chose the positive input of the channels
-    ADCHSbits.CH0SA = 0b0010;
-    ADCHSbits.CH123SA = 1;
-
-    // select the AN2 and AN3 pin as analogue
-    ADPCFG = 0xfff3;
-    
-    ADCON1bits.SIMSAM = 1;
-    // turn the ADC on
-    ADCON1bits.ADON = 1;
-
-    while (1) {
-        ADCON1bits.SAMP = 1; // start sampling
-        while (!ADCON1bits.DONE); // wait for the end of the conversion
-        // handling potentiometer
-        bits = ADCBUF0;
-        temp = bits/10.23;
-        sprintf(buf, "P=%ub ", bits);
-        lcd_write(0, buf); // read the sampled value
-        sprintf(buf, "P=%.1f%% ", temp);
-        lcd_write(16, buf); // read the sampled value
-        
-        // handling termometer
-        bits = ADCBUF1;
-        temp = bits * 0.48828125 - 50;
-        sprintf(buf, "T=%ub ", bits);
-        lcd_write(8, buf); // read the sampled value
-        sprintf(buf, "T=%.1fC ", temp);
-        lcd_write(24, buf); // read the sampled value
-        tmr_wait_ms(TIMER1, 200);
-    }
 }
 
 int main(void)
 {
-    // exercise1();
+    exercise1();
     // exercise2();
-    exercise3();
+    // exercise3();
 }

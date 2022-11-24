@@ -81,7 +81,7 @@ void exercise1() {
         percent = bits/10.23;
         sprintf(buf, "%db  ", bits);
         lcd_write(0, buf); // read the sampled value
-        sprintf(buf, "%.0f%%  ", percent);
+        sprintf(buf, "%.0f%% ", percent);
         lcd_write(16, buf); // read the sampled value
     }
 }
@@ -168,7 +168,7 @@ void exercise3() {
         lcd_write(8, buf); // read the sampled value
         sprintf(buf, "T=%.1fC ", temp);
         lcd_write(24, buf); // read the sampled value
-        tmr_wait_ms(TIMER1, 200);
+        tmr_wait_ms(TIMER1, 500);
     }
 }
 
