@@ -40,8 +40,7 @@
 
 #include <xc.h>
 
-#define TIMER_FOR_BUTTON_S5 3
-#define TIMER_FOR_BUTTON_S6 4
+#define TIMER_FOR_BUTTON_S5 2
 
 #include "my_timer_lib.h"
 #include "my_print_lib.h"
@@ -65,24 +64,45 @@ typedef struct {
     unsigned short int textLen;
 } SlidingText;
 
-volatile SlidingText slidingText;
+volatile SlidingText st;
+int counter_flag = 1;
+int sliding_motion = 1;
+
+void onBtnS5Released() {
+    sliding_motion = !sliding_motion;
+}
  
 void task1()
-{
-    unsigned short int charIndex = slidingText.offset + slidingText.current;
-    if(slidingText.current >= 16 || charIndex >= slidingText.textLen)
-        return;
+{   
+    int charIndex = st.offset + st.current;
     
-    while (SPI1STATbits.SPITBF == 1);
-    SPI1BUF = slidingText.text[charIndex];
-    slidingText.current++;
+    if(st.current == 16){
+        counter_flag = 0;
+        st.current = 0;
+        while (SPI1STATbits.SPITBF == 1);
+        SPI1BUF = 0x80;
+        return;
+    }
+    
+    if (counter_flag){
+        if (charIndex == st.textLen){
+            while (SPI1STATbits.SPITBF == 1);
+            SPI1BUF = ' ';
+        } else if (charIndex > st.textLen) {
+            while (SPI1STATbits.SPITBF == 1);
+            SPI1BUF = st.text[charIndex - st.textLen - 1];
+        } else {
+            while (SPI1STATbits.SPITBF == 1);
+            SPI1BUF = st.text[charIndex];
+        }
+        st.current++;
+    }
 }
  
 void task2()
 {
-    SPI1BUF = 0x80;
-    slidingText.current = 0;
-    slidingText.offset = (slidingText.offset + 1) % slidingText.textLen;
+    counter_flag = 1;
+    st.offset = (st.offset + 1) % st.textLen;
 }
  
 void task3()
@@ -113,9 +133,9 @@ void exercise1()
     schedInfo[0] = (Heartbeat){0,1,task1}; // task 1 runs every heartbeat
     schedInfo[1] = (Heartbeat){0,50,task2}; // task 2 runs every 50 heartbeat
     schedInfo[2] = (Heartbeat){0,100,task3}; // task 3 runs every 100 heartbeat
-    slidingText = (SlidingText){
-        "                This is a very long string ",
-        0, 0, 43    
+    st = (SlidingText){
+        "This is a very long string",
+        0, 0, 26
     };
     
     while(1)
@@ -125,15 +145,87 @@ void exercise1()
     }
 }
 
-void exercise2() {
+void task4() {
+    int charIndex = st.offset + st.current;
+
+    if (st.current == 16) {
+        counter_flag = 0;
+        st.current = 0;
+        while (SPI1STATbits.SPITBF == 1);
+        SPI1BUF = 0x80;
+        return;
+    }
+
+    if (counter_flag) {
+        if (charIndex >= st.textLen && charIndex <= st.textLen + 14) {
+            while (SPI1STATbits.SPITBF == 1);
+            SPI1BUF = ' ';
+        } else if (charIndex > st.textLen + 14) {
+            while (SPI1STATbits.SPITBF == 1);
+            SPI1BUF = st.text[charIndex - st.textLen - 15];
+        } else {
+            while (SPI1STATbits.SPITBF == 1);
+            SPI1BUF = st.text[charIndex];
+        }
+        st.current++;
+    }
 }
- 
-void exercise3() {
+
+void task5() {
+        if(sliding_motion) {
+        counter_flag = 1;
+        st.offset = (st.offset + 1) % (st.textLen + 15);
+    }
+}
+
+void exercise2() {
+    int bits;
+    int sliding_speed = 50;
+
+    // Setting the Tad
+    ADCON3bits.ADCS = 8; // Tad = 4.5 Tcy
+    // sampling mode: manual sampling, automatic conversion
+    ADCON1bits.ASAM = 0; // start
+    ADCON1bits.SSRC = 7; // end
+    
+    ADCON3bits.SAMC = 16; // auto sampling time
+    // selecting the channel to convert
+    ADCON2bits.CHPS = 0;
+    // chose the positive input of the channels
+    ADCHSbits.CH0SA = 0b0010;
+
+    // select the AN2 pin as analogue
+    ADPCFG = 0xfffb;
+
+    // turn the ADC on
+    ADCON1bits.ADON = 1;
+
+    init_btn_s5(&onBtnS5Released); // init the button S5 handler
+    init_spi();
+    TRISBbits.TRISB0 = 0; // set the pin as output
+    tmr_wait_ms(TIMER1, 1500);
+    tmr_setup_period(TIMER1, 5); // initialize heatbeat timer
+    schedInfo[0] = (Heartbeat){0, 1, task4}; // task 1 runs every heartbeat
+    schedInfo[1] = (Heartbeat){0, 50, task5}; // task 2 runs every 50 heartbeat
+    schedInfo[2] = (Heartbeat){0, 100, task3}; // task 3 runs every 100 heartbeat
+    st = (SlidingText){
+        "This is a very long string",
+        0, 0, 26
+    };
+
+    while (1) {
+        ADCON1bits.SAMP = 1; // start sampling
+        while (!ADCON1bits.DONE); // wait for the end of the conversion
+        bits = ADCBUF0;
+        sliding_speed = (int)(1.5*(bits/10.23) + 50);
+        schedInfo[1].N = sliding_speed;
+        scheduler();
+        tmr_wait_period(TIMER1);
+    }
 }
 
 int main(void)
 {
-    exercise1();
-    // exercise2();
-    // exercise3();
+    // exercise1();
+    exercise2();
 }
