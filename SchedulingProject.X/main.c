@@ -49,8 +49,80 @@
 #include "my_btn_lib.h"
 #include <stdio.h>
 
-void exercise1() {
+#define TASK_COUNT 3
+ 
+typedef struct
+{
+    int n;  // number of periods elapsed from last task call
+    int N;  // after how many periods should the task be called
+    void (*task)(void);  // the task
+} Heartbeat;
 
+typedef struct {
+    char text[64]; // string to write
+    unsigned short int offset; // the first character to be written
+    unsigned short int current; // current character to write
+    unsigned short int textLen;
+} SlidingText;
+
+volatile SlidingText slidingText;
+ 
+void task1()
+{
+    unsigned short int charIndex = slidingText.offset + slidingText.current;
+    if(slidingText.current >= 16 || charIndex >= slidingText.textLen)
+        return;
+    
+    while (SPI1STATbits.SPITBF == 1);
+    SPI1BUF = slidingText.text[charIndex];
+    slidingText.current++;
+}
+ 
+void task2()
+{
+    SPI1BUF = 0x80;
+    slidingText.current = 0;
+    slidingText.offset = (slidingText.offset + 1) % slidingText.textLen;
+}
+ 
+void task3()
+{
+    LATBbits.LATB0 = !LATBbits.LATB0; // toggle led
+}
+ 
+ 
+Heartbeat schedInfo[TASK_COUNT];
+ 
+void scheduler()
+{
+    for(int i=0; i<TASK_COUNT; ++i)
+    {
+        if(++schedInfo[i].n < schedInfo[i].N)
+            continue;
+        schedInfo[i].task();
+        schedInfo[i].n = 0;
+    }
+}
+  
+void exercise1()
+{
+    init_spi();
+    TRISBbits.TRISB0 = 0; // set the pin as output
+    tmr_wait_ms(TIMER1,1500);
+    tmr_setup_period(TIMER1, 5); // initialize heatbeat timer
+    schedInfo[0] = (Heartbeat){0,1,task1}; // task 1 runs every heartbeat
+    schedInfo[1] = (Heartbeat){0,50,task2}; // task 2 runs every 50 heartbeat
+    schedInfo[2] = (Heartbeat){0,100,task3}; // task 3 runs every 100 heartbeat
+    slidingText = (SlidingText){
+        "                This is a very long string ",
+        0, 0, 43    
+    };
+    
+    while(1)
+    {
+        scheduler();
+        tmr_wait_period(TIMER1);
+    }
 }
 
 void exercise2() {
