@@ -50,18 +50,31 @@
 #include <stdio.h>
 
 void exercise1() {
-
+    PTCONbits.PTMOD = 0;     // free running mode
+    PTCONbits.PTCKPS = 0b0;  // prescaler
+    PWMCON1bits.PEN2H = 1;   // output high bit
+    PWMCON1bits.PEN2L = 1;   // output low bit
+    PTPER = 1842;            // time period
+    PDC2 = PTPER;            // duty cycle
+    PTCONbits.PTEN = 1;      // enable the PWM
+    while(1);
 }
 
 void exercise2() {
-}
- 
-void exercise3() {
+    PTCONbits.PTMOD = 0;     // free running mode
+    PTCONbits.PTCKPS = 0b0;  // prescaler
+    PWMCON1bits.PEN2H = 1;   // output high bit
+    PWMCON1bits.PEN2L = 1;   // output low bit
+    PTPER = 1842;            // time period
+    PDC2 = PTPER;            // duty cycle
+    DTCON1bits.DTAPS = 0b10;    // dead time prescaler
+    DTCON1bits.DTA = 18;     // dead time
+    PTCONbits.PTEN = 1;      // enable the PWM
+    while(1);
 }
 
 int main(void)
 {
-    exercise1();
-    // exercise2();
-    // exercise3();
+    // exercise1();
+    exercise2();
 }
